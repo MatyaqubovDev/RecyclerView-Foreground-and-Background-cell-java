@@ -10,6 +10,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -33,8 +34,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String android_id = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-        Log.d(android_id, "onCreate: "+ android_id);
+        String android_id = androidID();
+
+            Log.d(android_id, "onCreate: "+ android_id);
 
 
         if (isEmulator()) {
@@ -46,6 +48,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    public boolean isNotEmulator(){
+        TelephonyManager tm = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        String networkOperator = tm.getNetworkOperatorName();
+        if("Android".equals(networkOperator)) { //Since Android emulator always retuns "Android" as network operator, I use above code
+            // Emulator
+            Log.d("@@"," in Emulator");
+            return false;
+//            finish();
+        }
+        else {
+            // Device
+            Log.d("@@","in Device");
+            return true;
+        }
+    }
     public static boolean isEmulator() {
         return Build.FINGERPRINT.startsWith("generic")
                 || Build.FINGERPRINT.startsWith("unknown")
@@ -55,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
                 || Build.MANUFACTURER.contains("Genymotion")
                 || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
                 || "google_sdk".equals(Build.PRODUCT);
+    }
+
+    public String androidID(){
+       String id= Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        return id;
     }
 
     private void initViews() {
